@@ -34,7 +34,7 @@ bike_all <- bike_raw %>% mutate(
   ) %>% select(!c(date,season)) 
 
 
-# functional denotes if bike rentals available 
+# functional denotes if bike rentals available / functioning 
 # (all 0 counts are on non-functional days)
 # bike_raw %>% filter(functional == "No") %>% nrow()
 # bike_raw %>% filter(functional == "No" & rented_bikes == 0) %>% nrow()

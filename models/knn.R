@@ -9,21 +9,29 @@
 # load in data
 load("data/bike_clean.Rdata")
 
-# filler code, change later to use with bike data 
+# setup 
 library(caret)
 set.seed(1999)
-# knn_LOOCV <- train(y=housing_dat$price,x=housing_dat[,2:12],
-#                    method="knn", tuneGrid=data.frame(k=1:30),
-#                    preProcess=c("center","scale"),
-#                    trControl=trainControl(method="LOOCV"))
-# 
-# knn_LOOCV$results
-# which.min(knn_LOOCV$results$RMSE)
-# knn_LOOCV$finalModel
-# 
-# 
-# LOOCV_plot <- ggplot(knn_LOOCV) + 
-#   labs(title = "k-nn LOOCV", y = "RMSE") + 
-#   theme_bw() +  theme(plot.title = element_text(hjust = 0.5))
-# 
-# ggsave("figures/hw4_CE_knn.jpg", LOOCV_plot, width = 4, height = 3, dpi = 300)
+
+# 10 fold CV
+knn_10F <- train(y=bike_train$rented_bikes,x=bike_train[,2:16],
+                 method="knn", tuneGrid=expand.grid(k=1:30),
+                 preProcess=c("center","scale"),
+                 trControl=trainControl(method="repeatedcv", 
+                                        repeats=100, number=10))
+
+knn_10F$results
+which.min(knn_10F$results$RMSE)
+knn_10F$finalModel
+# k = 7 is best, 10F CV RMSE of 303.6568
+
+library(ggplot2)
+knn_10F_plot <- ggplot(knn_10F) + labs(title = "knn 10-Fold CV", y = "RMSE") + 
+  theme_bw() +  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave("figures/knn_10FCV.pdf", knn_10F_plot, width = 7, height = 5, dpi = 300)
+
+# calculate test RMSE 
+knn_test_pred <- predict(knn_10F, bike_test)
+knn_test_rmse <- RMSE(knn_test_pred, bike_test$rented_bikes)
+knn_test_rmse #  296.9907 is test RMSE 
