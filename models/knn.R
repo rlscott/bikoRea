@@ -18,7 +18,7 @@ knn_10F <- train(y=bike_train$rented_bikes,x=bike_train[,2:16],
                  method="knn", tuneGrid=expand.grid(k=1:30),
                  preProcess=c("center","scale"),
                  trControl=trainControl(method="repeatedcv", 
-                                        repeats=100, number=10))
+                                        repeats=10, number=10))
 
 knn_10F$results
 which.min(knn_10F$results$RMSE)
