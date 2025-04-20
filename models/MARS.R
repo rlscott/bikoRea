@@ -11,47 +11,42 @@ load("data/bike_clean.Rdata")
 
 # setup 
 library(caret)
+library(earth)
 set.seed(1999)
 
 
-
-
-
-## Install the earth package in R
-install.packages("earth")
-library(earth)
-
-## Function for unregistering parallel computing; use unregister_dopar() 
-## after parallel computing
+# Function for unregistering parallel computing; use after parallel computing
 unregister_dopar <- function() {
   env <- foreach:::.foreachGlobals
   rm(list=ls(name=env), pos=env)
 }
 
-## Use parallel computing in R to speed up computations
-library(doParallel)                    ## for parallel computing
-cl<-makePSOCKcluster(detectCores())    ## for parallel computing  
-## socket cluster with 8 nodes on host ‘localhost’
-registerDoParallel(cl)                 ## for parallel computing
+# Use parallel computing To speed up computations
+library(doParallel)                    
+cl<-makePSOCKcluster(detectCores())    
+registerDoParallel(cl) # socket cluster with 8 nodes on host ‘localhost’
 
 date()
 MARS.grid<-expand.grid(nprune=c(1:30), degree=c(1:3))
-MARSTune.LOO<-train(y=housing_dat[,1], x=housing_dat[,2:12], method="earth",
+MARSTune <-train(y=bike_train$rented_bikes, x=bike_train[,2:15], method="earth",
                     preProcess = c("center","scale"),  ## standardize input variables
-                    tuneGrid=MARS.grid,               
-                    trControl=trainControl(method="LOOCV"))
+                    tuneGrid=MARS.grid,
+                 trControl=trainControl(method="repeatedcv", repeats=10, number=10))
 date()
-stopCluster(cl)                       ## for parallel computing
+stopCluster(cl)
 unregister_dopar()
 
-MARSTune.LOO$results
-plot(MARSTune.LOO)
-MARSTune.LOO$bestTune
-#    nprune degree
-# 43     15      1
-min(MARSTune.LOO$results$RMSE)
-# [1] 15864.31
+MARSTune$results
+plot(MARSTune)
+MARSTune$bestTune
+# nprune degree
+# 85     25      3
+min(MARSTune$results$RMSE)
+# [1] 293.8558
 
+MARSTune$finalModel
+
+# Notes from Dr. Wu: 
 ## degree: Maximum degree of interaction (Friedman’s mi). Default is 1, 
 ##         meaning to build an additive model (i.e., no interaction terms).
 ## nprune: Maximum number of terms (including intercept) in the pruned model. 
