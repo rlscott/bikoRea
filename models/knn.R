@@ -2,7 +2,7 @@
 #
 #   Stat 602 - Machine Learning
 #   Final Project - bikoRea
-#   knn LOOCV | Rebekah Scott 
+#   knn 10 F, 10 repeats CV | Rebekah Scott 
 #
 # -----------------------------------------------------------------
 

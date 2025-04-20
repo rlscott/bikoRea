@@ -20,7 +20,9 @@ bike_raw <- read.csv("data/SeoulBikeData.csv", header=TRUE, comment.char="#",
 # clean data - put into desired format 
 library(dplyr, magrittr)
 
-bike_all <- bike_raw %>% mutate(
+bike_all <- bike_raw %>% 
+  filter(functional == "Yes") %>% 
+  mutate(
   # preserve the spring and year (2017 or 2017)
   date = lubridate::dmy(date),
   year_2018 = ifelse(lubridate::year(date) == "2018", 1, 0),
@@ -28,10 +30,9 @@ bike_all <- bike_raw %>% mutate(
   spring = ifelse(season == "Spring", 1, 0), 
   summer = ifelse(season == "Summer", 1, 0), 
   
-  # make holiday and functional binary
-  holiday = ifelse(holiday == "Holiday", 1, 0), 
-  functional = ifelse(functional == "Yes", 1, 0) 
-  ) %>% select(!c(date,season)) 
+  # make holiday binary
+  holiday = ifelse(holiday == "Holiday", 1, 0)
+  ) %>% select(!c(date,season, functional)) 
 
 
 # functional denotes if bike rentals available / functioning 
@@ -39,6 +40,9 @@ bike_all <- bike_raw %>% mutate(
 # bike_raw %>% filter(functional == "No") %>% nrow()
 # bike_raw %>% filter(functional == "No" & rented_bikes == 0) %>% nrow()
 # bike_raw %>% filter(rented_bikes == 0) %>% nrow()
+# not functional for 13 days. exclude data for those days 
+# lubridate::dmy((bike_raw %>% filter(functional == "No"))$date) %>% 
+# unique()
 
 n <- nrow(bike_all)
 test_size <- n * .2 #  80/20 train / test split  
