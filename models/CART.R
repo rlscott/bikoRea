@@ -22,3 +22,18 @@ ggsave("figures/CART_10FCV.pdf", CART10F_plot, width = 7, height = 5, dpi = 300)
 CART_test_pred <- predict(CART10F, bike_test)
 CART_test_rmse <- RMSE(CART_test_pred, bike_test$rented_bikes)
 CART_test_rmse # 285.9258
+
+CART10F$finalModel$variable.importance
+xtable(varImp(CART10F)$importance)
+
+importance_vals <- varImp(CART10F)
+
+# Extract the dataframe
+importance_df <- importance_vals$importance
+importance_df$Variable <- rownames(importance_df)
+
+# Optional: Arrange by descending importance
+importance_df <- importance_df[order(-importance_df$Overall), ]
+
+# Turn into LaTeX table
+xtable(importance_df)

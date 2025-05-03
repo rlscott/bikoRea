@@ -3,6 +3,7 @@ library(caret)
 library(tictoc)
 library(tidyverse)
 library(randomForest)
+library(xtable)
 
 set.seed(7)
 tic()
@@ -23,6 +24,19 @@ ggsave("figures/RF_OOB.pdf", RFOOBF_plot, width = 7, height = 5, dpi = 300)
 RF_test_pred <- predict(RFOOBF, bike_test)
 RF_test_rmse <- RMSE(RF_test_pred, bike_test$rented_bikes)
 RF_test_rmse # 232.0626
-?predict
+# ?predict
 
-RFOOBF$importance
+# xtable(varImp(RFOOBF)$importance)
+# xtable(RFOOBF$finalModel$importance)
+
+importance_vals <- varImp(RFOOBF)
+
+# Extract the dataframe
+importance_df <- importance_vals$importance
+importance_df$Variable <- rownames(importance_df)
+
+# Optional: Arrange by descending importance
+importance_df <- importance_df[order(-importance_df$Overall), ]
+
+# Turn into LaTeX table
+xtable(importance_df)
