@@ -16,11 +16,11 @@ require(randomForest)
 rf_bike <-randomForest(y=bike_train[,1],x=bike_train[,2:15],mtry=6, ntree = 500, nmin = 3)
 rfPred <- rf_bike$predicted # OOB prediction
 
-# 2: BART TO DO----
-require(BART)
-# bart_bike
+# 2: BART ----
+# load data from Ben bc computationally intense 
+load("data/yhats_BART.Rdata")
+bartPred <- yhats_BART_train
 
-bartPred <- bike_train[,1] # TO FIX!! 
 # 3: XGBoost ----
 # eta max_depth gamma colsample_bytree min_child_weight subsample nrounds 
 # 0.2         3     2              0.5                1       0.9     200 
@@ -86,11 +86,19 @@ rf_import <- varImp(rf_bike)
 colnames(rf_import) <- "RF"
 rf_import <- round(rf_import / max(rf_import) * 100, 2) # put on a scale of 100
 
-# BART (to do)
-# bart_import <- varImp(bart_bike) # to do
+# BART dosen't work (not supported by BART package)
 
-# XGBoost (doesn't work)
-xgb_import <- varImp(xgb_bike) # ask Liam about this 
+# XGBoost (rerun with caret::train() function)
+set.seed(964973)
+XGB.grid <- expand.grid(nrounds=300, max_depth=3, eta=0.2,  
+                      colsample_bytree=0.5, subsample=0.9,
+                      gamma=2, min_child_weight=1)
+XGBTune <- train(y=bike_train$rented_bikes, x=bike_train[,2:15],method="xgbTree",
+               verbose=FALSE, verbosity=0, tuneGrid=XGB.grid, 
+               trControl=trainControl(method="repeatedcv",repeats=1,number=10))
+xgb_import <- varImp(XGBTune)
+xgb_import <- data.frame(XGBoost = xgb_import$importance)
+colnames(xgb_import) <- "XGBoost"
 
 # Tree
 tree_import <- varImp(tree_bike) 
@@ -98,10 +106,21 @@ colnames(tree_import) <- "Regression Tree"
 tree_import <- round(tree_import / max(tree_import) * 100, 2)
 
 # Nnet is weird 
-# avNNet_import <- varImp(avNNet_bike)
+# avNNet_import <- varImp(avNNet_bike) # dosen't work, need to use caret
+
+nn10F <- train(y = bike_train$rented_bikes, x = bike_train[,2:15],
+  method = "avNNet", trace=FALSE, linout=TRUE,
+  preProc = c("center","scale"), maxit=500, repeats=5, 
+  tuneGrid = expand.grid(size = 20, decay = 0.3, bag=FALSE),
+  trControl=trainControl(method = "repeatedcv",repeats=2,number=10))
+
+nnet_import <- varImp(nn10F) 
+colnames(nnet_import) <- "NNet"
 
 # put it together  
-import_together <- merge(rf_import, tree_import, by = 0)
+import_together <- merge(tree_import, xgb_import, by = 0)
+import_together2 <- merge(rf_import, import_together, by = "row.names")
+import_together3 <- merge(rf_import, import_together2, by = 0)
 import_together <- import_together[order(-import_together$RF), ] # order it
 print(xtable::xtable(import_together), include.rownames = FALSE) # turn into LaTeX table
                                    
