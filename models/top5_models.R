@@ -86,7 +86,7 @@ rf_import <- varImp(rf_bike)
 colnames(rf_import) <- "RF"
 rf_import <- round(rf_import / max(rf_import) * 100, 2) # put on a scale of 100
 
-# BART dosen't work (not supported by BART package)
+# BART doesn't work (not supported by BART package)
 
 # XGBoost (rerun with caret::train() function)
 set.seed(964973)
@@ -97,12 +97,12 @@ XGBTune <- train(y=bike_train$rented_bikes, x=bike_train[,2:15],method="xgbTree"
                verbose=FALSE, verbosity=0, tuneGrid=XGB.grid, 
                trControl=trainControl(method="repeatedcv",repeats=1,number=10))
 xgb_import <- varImp(XGBTune)
-xgb_import <- data.frame(XGBoost = xgb_import$importance)
+xgb_import <- data.frame(XGBoost = round(xgb_import$importance,2))
 colnames(xgb_import) <- "XGBoost"
 
 # Tree
 tree_import <- varImp(tree_bike) 
-colnames(tree_import) <- "Regression Tree"
+colnames(tree_import) <- "Tree"
 tree_import <- round(tree_import / max(tree_import) * 100, 2)
 
 # Nnet is weird 
@@ -115,12 +115,25 @@ nn10F <- train(y = bike_train$rented_bikes, x = bike_train[,2:15],
   trControl=trainControl(method = "repeatedcv",repeats=2,number=10))
 
 nnet_import <- varImp(nn10F) 
+nnet_import <- data.frame(NNet = round(nnet_import$importance, 2))
 colnames(nnet_import) <- "NNet"
 
 # put it together  
-import_together <- merge(tree_import, xgb_import, by = 0)
-import_together2 <- merge(rf_import, import_together, by = "row.names")
-import_together3 <- merge(rf_import, import_together2, by = 0)
+
+# use merge.all to merge multiple dfs by row names 
+# (from https://stackoverflow.com/questions/22617593/merge-multiple-data-frames-by-row-names)
+
+merge.all <- function(x, ..., by = "row.names") {
+  L <- list(...)
+  for (i in seq_along(L)) {
+    x <- merge(x, L[[i]], by = by)
+    rownames(x) <- x$Row.names
+    x$Row.names <- NULL
+  }
+  return(x)
+}
+
+import_together <- merge.all(rf_import, xgb_import, tree_import, nnet_import)
 import_together <- import_together[order(-import_together$RF), ] # order it
 print(xtable::xtable(import_together), include.rownames = FALSE) # turn into LaTeX table
                                    
