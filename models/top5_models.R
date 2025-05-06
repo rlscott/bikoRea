@@ -71,7 +71,18 @@ pairs_plot <- ggpairs(top5Pred) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme_bw()
 pairs_plot
 
-ggsave("figures/top5_scatter_plot_mat.jpg", pairs_plot, width = 10, height = 10, dpi = 300)
+ggsave("figures/top5_scatter_plot.jpg", pairs_plot, 
+       width = 10, height = 10, dpi = 300)
+
+# smaller version 
+
+pairs_plot_small <- ggpairs(top5Pred[, c(1, 2:6)]) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme_bw()
+pairs_plot_small
+
+ggsave("figures/top5_scatter_plot_small.jpg", pairs_plot_small, 
+       width = 10, height = 10, dpi = 300)
+
 
 # get RF Test RMSE ----
 rf_test_pred <- predict(rf_bike, bike_test)
