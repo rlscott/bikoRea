@@ -315,20 +315,32 @@ results
 # 27  0.95  300  3          53374.22, best RSME=231.0286
 
 set.seed(4804355)
-yhats_BART_train <- wbart(x.train=bike_train[,2:15], 
-              y.train=bike_train$rented_bikes,
-              sparse=F,
-              base=.75,
-              ntree=200,
-              k=3)$yhat.train.mean
-yhats_BART_test <- wbart(x.train=bike_test[,2:15], 
-                          y.train=bike_test$rented_bikes,
+# yhats_BART_train <- wbart(x.train=bike_train[,2:15], 
+#               y.train=bike_train$rented_bikes,
+#               sparse=F,
+#               base=.75,
+#               ntree=200,
+#               k=3)$yhat.train.mean
+# yhats_BART_test <- wbart(x.train=bike_test[,2:15], 
+#                           y.train=bike_test$rented_bikes,
+#                           sparse=F,
+#                           base=.75,
+#                           ntree=200,
+#                           k=3)$yhat.train.mean
+# save(yhats_BART_train,
+#      yhats_BART_test,
+#      file="C://Users//blj12//OneDrive//STAT S25//STAT 6020//yhats_BART.Rdata")
+
+yhats_BART <- wbart(x.train=bike_train[,2:15], 
+                          y.train=bike_train$rented_bikes,
+                          x.test=bike_test[,2:15],
                           sparse=F,
                           base=.75,
                           ntree=200,
-                          k=3)$yhat.train.mean
+                          k=3)
+yhats_BART_train <- yhats_BART$yhats.train.mean
+yhats_BART_test <- yhats_BART$yhats.test.mean
 save(yhats_BART_train,
      yhats_BART_test,
-     file="C://Users//blj12//OneDrive//STAT S25//STAT 6020//yhats_BART.Rdata")
-
+     file="C://Users//blj12//OneDrive//STAT S25//STAT 6020//yhats_BART v2.Rdata")
 
