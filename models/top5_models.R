@@ -154,7 +154,9 @@ print(xtable::xtable(import_together), include.rownames = FALSE) # turn into LaT
 rfPred2 <- predict(rf_bike, bike_test)
 
 # BART (from Ben)
-# helppppp
+load("data/yhats_BART v2.Rdata")
+
+yhats_BART_test
 
 # xgb
 num_bike_test <- bike_test
