@@ -338,9 +338,9 @@ yhats_BART <- wbart(x.train=bike_train[,2:15],
                           base=.75,
                           ntree=200,
                           k=3)
-yhats_BART_train <- yhats_BART$yhats.train.mean
-yhats_BART_test <- yhats_BART$yhats.test.mean
+yhats_BART_train <- yhats_BART$yhat.train.mean
+yhats_BART_test <- yhats_BART$yhat.test.mean
 save(yhats_BART_train,
      yhats_BART_test,
-     file="C://Users//blj12//OneDrive//STAT S25//STAT 6020//yhats_BART v2.Rdata")
+     file="C://Users//blj12//OneDrive//STAT S25//STAT 6020//yhats_BART v3.Rdata")
 
