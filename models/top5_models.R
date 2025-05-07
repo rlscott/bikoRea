@@ -148,3 +148,29 @@ import_together <- merge.all(rf_import, xgb_import, tree_import, nnet_import)
 import_together <- import_together[order(-import_together$RF), ] # order it
 print(xtable::xtable(import_together), include.rownames = FALSE) # turn into LaTeX table
                                    
+# test set pred values ----
+
+# rf
+rfPred2 <- predict(rf_bike, bike_test)
+
+# BART (from Ben)
+# helppppp
+
+# xgb
+num_bike_test <- bike_test
+for (i in 1:15) {
+  num_bike_test[,i]<-as.double(num_bike_test[,i])
+}
+num_bike_test <- as.matrix(num_bike_test)
+xgbPred2 <- predict(xgb_bike, num_bike_test)
+
+# tree
+treePred2 <- predict(tree_bike, data.frame(bike_test))
+
+# nnet 
+avNNetPred2 <- predict(avNNet_bike, bike_test[,2:15])
+
+top5Pred_test <- cbind(bike_test[,1], rfPred2, xgbPred2, treePred2, avNNetPred2)
+colnames(top5Pred_test)<-c("y", "RF", "XGBoost", "Tree", "NNet")
+
+save(file = "data/top5Pred_test.Rdata", top5Pred_test)
