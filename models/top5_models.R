@@ -154,7 +154,7 @@ print(xtable::xtable(import_together), include.rownames = FALSE) # turn into LaT
 rfPred2 <- predict(rf_bike, bike_test)
 
 # BART (from Ben)
-load("data/yhats_BART v2.Rdata")
+load("data/yhats_BART v3.Rdata")
 
 yhats_BART_test
 
@@ -172,7 +172,7 @@ treePred2 <- predict(tree_bike, data.frame(bike_test))
 # nnet 
 avNNetPred2 <- predict(avNNet_bike, bike_test[,2:15])
 
-top5Pred_test <- cbind(bike_test[,1], rfPred2, xgbPred2, treePred2, avNNetPred2)
-colnames(top5Pred_test)<-c("y", "RF", "XGBoost", "Tree", "NNet")
+top5Pred_test <- cbind(bike_test[,1], rfPred2, yhats_BART_test, xgbPred2, treePred2, avNNetPred2)
+colnames(top5Pred_test)<-c("y", "RF", "BART", "XGBoost", "Tree", "NNet")
 
 save(file = "data/top5Pred_test.Rdata", top5Pred_test)
